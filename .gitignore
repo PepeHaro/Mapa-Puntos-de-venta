@@ -7,3 +7,4 @@ geocache.json
 __pycache__/
 .vitromex-generado
 reporte_faltantes.py
+normalizar.py
