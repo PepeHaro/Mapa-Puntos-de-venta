@@ -2,3 +2,6 @@
 ~$*
 generar.py
 publicar.sh
+scrape_vitromex.py
+geocache.json
+__pycache__/
