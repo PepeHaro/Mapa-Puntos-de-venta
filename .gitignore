@@ -6,3 +6,4 @@ scrape_vitromex.py
 geocache.json
 __pycache__/
 .vitromex-generado
+reporte_faltantes.py
