@@ -105,6 +105,54 @@ def numero_exterior(direccion, ciudad="", estado=""):
     return max(nums) if nums else None
 
 
+# En Yucatan, Campeche y Quintana Roo la direccion no lleva numero de calle:
+# lleva manzana, lote y supermanzana. "Calle 36 Manzana 53 Lote 1" y "Calle 36 x
+# Lote 9 y Lote 1A No. Manzana 53 Lote 1" son la misma tienda de GRUPO BOXITO.
+ETIQUETAS = {"mz": "mz", "mza": "mz", "manzana": "mz", "manz": "mz",
+             "lote": "lote", "lt": "lote", "lots": "lote",
+             "sm": "sm", "smza": "sm", "supermanzana": "sm", "supmza": "sm",
+             "region": "region", "reg": "region"}
+
+
+def lotes(direccion, ciudad="", estado=""):
+    """Manzana, lote y supermanzana de una direccion peninsular."""
+    t = sin_cp(direccion, ciudad, estado)
+    t = re.sub(r"\b(sm|mz|mza|lt)(\d)", r"\1 \2", t)   # "SM2" -> "sm 2"
+    palabras = t.split()
+    out = defaultdict(set)
+    for i, w in enumerate(palabras):
+        etiqueta = ETIQUETAS.get(w)
+        if not etiqueta:
+            continue
+        for j in (i + 1, i + 2):
+            if j < len(palabras):
+                m = re.match(r"^(\d{1,4})", palabras[j])
+                if m:
+                    out[etiqueta].add(int(m.group(1)))
+                    break
+    return dict(out)
+
+
+def calle_numerada(direccion, ciudad="", estado=""):
+    """La calle y el numero cuando la calle es un numero.
+
+    En Merida y buena parte de la peninsula las calles no tienen nombre sino
+    numero: "Calle 35 #241 X 8 y 10". Sin palabras de calle el comparador se
+    quedaba sin nada con que trabajar, y dos filas de la misma tienda de EL
+    NIPLITO parecian distintas.
+
+    Devuelve (calle, numero); el numero es el mayor de los que quedan, que es
+    el del local, porque los otros son las calles con las que cruza.
+    """
+    t = sin_cp(direccion, ciudad, estado)
+    m = re.search(r"\bcalle\s+n?\s*(\d{1,3})\b", t) or re.search(r"\bcalle\s+(\d{1,3})", t)
+    if not m:
+        return None
+    via = int(m.group(1))
+    resto = [int(x) for x in re.findall(r"\b(\d{1,5})\b", t[:m.start()] + t[m.end():])]
+    return (via, max(resto)) if resto else (via, None)
+
+
 def calle(direccion, ciudad="", estado=""):
     """Palabras que de verdad identifican la calle.
 
@@ -137,9 +185,29 @@ def misma_tienda(a, b, metros):
     esten en un "Av. Juárez 100" de dos ciudades.
     """
     comun = calle(*a) & calle(*b)
+    misma_ciudad = na(a[1]) == na(b[1]) and na(a[1]) != ""
+
+    # Donde se numera por manzana y lote, eso manda sobre el numero de calle.
+    la_, lb_ = lotes(*a), lotes(*b)
+    compartidas = set(la_) & set(lb_)
+    if compartidas:
+        if any(not (la_[k] & lb_[k]) for k in compartidas):
+            return False
+        if len(compartidas) >= 2 or comun:
+            return metros < LEJOS_KM * 1000
+        return metros < 800
+
+    # Calles numeradas: no hay palabras que comparar, solo numeros.
+    ca, cb = calle_numerada(*a), calle_numerada(*b)
+    if ca and cb and not comun:
+        if ca[0] != cb[0]:
+            return False
+        if ca[1] is not None and cb[1] is not None:
+            return ca[1] == cb[1] and metros < LEJOS_KM * 1000
+        return metros < 300
+
     if not comun:
         return False
-    misma_ciudad = na(a[1]) == na(b[1]) and na(a[1]) != ""
     na_, nb = numero_exterior(*a), numero_exterior(*b)
     if na_ is not None and nb is not None:
         if na_ != nb:
