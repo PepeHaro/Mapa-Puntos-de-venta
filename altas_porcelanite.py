@@ -33,7 +33,7 @@ PORCELANITE = SERVIDOR / "Marcas" / "Porcelanite.xlsx"
 # Comparten direccion exacta con una empresa de la BD, pero no alcanzo para
 # confirmar que sean la misma razon social. Se quedan fuera: es preferible que
 # falte un distribuidor a que se duplique uno.
-DUDOSOS = {"GRUPO JCC", "VIZUET", "GUTIERREZ", "PALENCIA", "BERNARDO MENESES"}
+DUDOSOS = {"GRUPO JCC", "VIZUET", "GUTIERREZ", "PALENCIA"}
 
 RUIDO = {"grupo", "comercializadora", "distribuidora", "distribuidor",
          "corporativo", "sa", "de", "cv", "s", "rl", "sapi", "gpo"}

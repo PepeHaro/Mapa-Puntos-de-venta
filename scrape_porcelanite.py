@@ -82,7 +82,13 @@ NOMBRE_COMERCIAL = {
     "PYM durango": "PISOS Y MÁS",
     "PYM queretaro": "PISOS Y MÁS",
     "arzuaga": "MEGA PISOS",
-    "cienfuegos": "CIENFUEGOS EL GIGANTE",
+    # Confirmado contra gigantedelosazulejos.com: sus 45 sucursales estan en
+    # Veracruz, Puebla, Tamaulipas, SLP, Oaxaca e Hidalgo, igual que estas.
+    "cienfuegos": "EL GIGANTE DE LOS AZULEJOS Y MARMOLES",
+    # Otro negocio, el de Guerrero y Morelos. La BD ya lo tiene por su nombre
+    # comercial: su "Suc Galeana" y "EL GIGANTE DE LOS AZULEJOS DE JOJUTLA"
+    # estan las dos en la Carretera Alpuyeca-Jojutla Km 13.
+    "bernardo meneses": "EL GIGANTE DE LOS AZULEJOS",
     "dagda": "AZULEJARA SAN JOSE",
     "fierros y laminas": "EL BAZAR UNIVERSAL",
     "gpo garcia fernandez": "FERRESIN",
