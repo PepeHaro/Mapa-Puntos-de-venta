@@ -196,6 +196,62 @@ def sin_repetidos(filas):
     return [f for f in filas if id(f) not in fuera]
 
 
+# "Muebles para Baño" no es una empresa: es el rotulo que usan las tiendas del
+# grupo GERSA, y Urrea lo pone como si fuera el nombre del distribuidor en casi
+# 300 sucursales. Las que se pueden confirmar por direccion contra la BD pasan a
+# llamarse GERSA; las demas no se pueden identificar y no entran al archivo.
+GENERICOS = {"MUEBLES PARA BAÑO", "MUEBLES PARA BAÑOS"}
+
+
+def resolver_genericos(filas):
+    """Renombra a GERSA las tiendas genericas cuya direccion ya esta en la BD."""
+    bd = Path(str(DESTINO.parent.parent / "Distribuidores.xlsx"))
+    if not bd.exists():
+        return filas
+    libro = openpyxl.load_workbook(bd, read_only=True, data_only=True)
+    puntos = {}
+    for f in libro["BD"].iter_rows(min_row=2, values_only=True):
+        if not f[0]:
+            continue
+        try:
+            la, lo = float(f[7]), float(f[8])
+        except (TypeError, ValueError):
+            continue
+        puntos.setdefault((round(la, 2), round(lo, 2)), []).append(
+            (la, lo, str(f[6] or ""), str(f[0]))
+        )
+    libro.close()
+
+    resueltas, perdidas, salida = 0, 0, []
+    for f in filas:
+        if f[0] not in GENERICOS:
+            salida.append(f)
+            continue
+        lat, lon = f[6], f[7]
+        dueño = None
+        for dla in (-0.01, 0, 0.01):
+            for dlo in (-0.01, 0, 0.01):
+                for x, y, direccion, nombre in puntos.get((round(lat + dla, 2), round(lon + dlo, 2)), []):
+                    d = math.hypot((lat - x) * 110.57,
+                                   (lon - y) * 111.32 * math.cos(math.radians(lat)))
+                    if d > 0.15:
+                        continue
+                    na_, nb = numero_exterior(f[5]), numero_exterior(direccion)
+                    if na_ is not None and na_ == nb and (palabras_calle(f[5]) & palabras_calle(direccion)):
+                        dueño = nombre
+        if dueño:
+            f[0] = dueño
+            f[2] = titulo(dueño)
+            resueltas += 1
+            salida.append(f)
+        else:
+            perdidas += 1
+    if resueltas or perdidas:
+        print(f"  \"Muebles para Baño\": {resueltas} identificadas por direccion, "
+              f"{perdidas} sin identificar (no entran)")
+    return salida
+
+
 def avisar_si_hay_ediciones():
     if not DESTINO.exists():
         return
@@ -256,6 +312,7 @@ def main():
     if fuera_mx:
         print(f"  {fuera_mx} con coordenada fuera de Mexico (descartados)")
 
+    filas = resolver_genericos(filas)
     filas = sin_repetidos(filas)
     filas.sort(key=lambda f: (sin_acentos(f[0]).upper(), sin_acentos(f[4]).upper()))
 
