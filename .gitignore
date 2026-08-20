@@ -12,3 +12,17 @@ arreglar_83.py
 consenso.py
 ciudad.py
 NOTAS.md
+altas_faltantes.py
+altas_porcelanite.py
+altas_urrea.py
+limpiar_bd.py
+limpiar_marcas.py
+nombres_comerciales.py
+normalizar_nombres.py
+oficiales.py
+scrape_corona.py
+scrape_porcelanite.py
+scrape_urrea.py
+.porcelanite-generado
+.urrea-generado
+.corona-generado
