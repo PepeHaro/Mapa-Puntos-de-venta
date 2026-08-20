@@ -86,7 +86,8 @@ VIAS_DIR = {"av", "avenida", "blvd", "boulevard", "calle", "calz", "calzada",
 # distribuidor en su API.
 COORDENADAS_A_MANO = {}
 
-# Fuera de esta caja no hay territorio mexicano.
+# Fuera de esta caja no hay territorio mexicano. Urrea usa dos rellenos para
+# "no se donde esta": 0,0 y 1,-1, los dos frente a Africa.
 CAJA_MX = (14.3, 32.8, -118.6, -86.5)
 
 
@@ -108,9 +109,25 @@ def titulo(s):
     )
 
 
+def sin_razon_social(nombre):
+    """Quita las siglas de la forma legal del final del nombre.
+
+    Urrea escribe el mismo negocio de varias maneras y cada una cuenta como
+    distribuidor aparte: "ZETUNA", "ZETUNA S DE RL DE C.V." y "ZETUNA S DE RL
+    DE CV" son tres. Al quitar las siglas los tres se vuelven "ZETUNA", que
+    ademas es como lo tiene la BD.
+    """
+    t = " ".join(re.sub(r"[.,]", " ", str(nombre or "")).split())
+    t = re.sub(r"\s+S\s*A\s*P\s*I(\s+DE)?(\s+C\s*V)?\s*$", "", t, flags=re.I)
+    t = re.sub(r"\s+S(\s+DE)?\s+R\s*L(\s+DE)?(\s+C\s*V)?\s*$", "", t, flags=re.I)
+    t = re.sub(r"\s+S\s*A(\s+DE?)?(\s+C\s*V?)?\s*$", "", t, flags=re.I)
+    t = re.sub(r"\s+DE\s+C\s*V\s*$", "", t, flags=re.I)
+    return t.strip() or " ".join(str(nombre or "").split())
+
+
 def mayus(s):
     """DISTRIBUIDOR va en mayusculas en todos los archivos."""
-    return re.sub(r"\s+", " ", str(s or "")).strip().upper()
+    return re.sub(r"\s+", " ", sin_razon_social(s)).strip().upper()
 
 
 def sin_cp(direccion):
@@ -206,7 +223,7 @@ def main():
         except (TypeError, ValueError):
             sin_coords += 1
             continue
-        if lat == 0 and lng == 0:
+        if (lat, lng) in ((0, 0), (1, -1)):
             sin_coords += 1
             continue
         smin, smax, wmin, wmax = CAJA_MX
@@ -224,7 +241,7 @@ def main():
         filas.append([
             mayus(x.get("name")),
             "México",
-            titulo(x.get("name")),
+            titulo(sin_razon_social(x.get("name"))),
             estado,
             titulo(x.get("city")),
             direccion,
