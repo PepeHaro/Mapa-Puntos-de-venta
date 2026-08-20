@@ -80,6 +80,18 @@ COMERCIAL = {
     "MARIO AARON SOTO CASTRO": "SOTO",
     "FERRETERIA AMAYA": "AMAYA",
     "NITROPISO AP": "TECNOPISO",
+    "OUTLET KURODA": "KURODA",
+    "OUTLET KURODA TRES RÍOS": "KURODA",
+    "BODEGA KURODA": "KURODA",
+    "LA PALOMA": "PISOS LA PALOMA",
+    "RIVIERA AZULEJO Y MUEBLES": "AZULEJOS Y MUEBLES RIVIERA",
+    "LA COMPETIDORA FERRETERAS.A.DEC.": "LA COMPETIDORA FERRETERA",
+    "QUINCE ME S DE RL DE CV": "TERRATILE",
+    "GILSA GARZA SADA": "GRUPO GILSA",
+    # "Azulejera" es la palabra; la BD la traia con errata como "Azulejara"
+    "AZULEJARA SAN JOSE": "AZULEJERA SAN JOSÉ",
+    "AZULEJERA SAN JOSÉ MATRIZ": "AZULEJERA SAN JOSÉ",
+    "AZULEJERA SAN JOSÉ BODEGA": "AZULEJERA SAN JOSÉ",
     "NITROPISO": "TECNOPISO",
 
     # Nombre comercial conocido por el negocio, no deducible del nombre legal
@@ -96,6 +108,7 @@ COMERCIAL = {
 # cada una. Todo lo que empiece asi es la misma cadena.
 POR_PREFIJO = {
     "EL SURTIDOR -": "EL SURTIDOR",
+    "GILSA": "GRUPO GILSA",
     "EL NIPLITO": "EL NIPLITO",
     "VAMA": "GRUPO VAMA",
     "GRUPO VAMA": "GRUPO VAMA",
