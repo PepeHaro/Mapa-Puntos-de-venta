@@ -156,6 +156,22 @@ def misma_tienda(a, b, metros):
     return len(comun) >= 2 and metros < LEJOS_KM * 1000
 
 
+GENERICAS_SUC = {"suc", "sucursal", "matriz", "bodega", "cedis", "tienda", "pdv",
+                 "local", "planta", "centro", "principal"}
+
+
+def clave_sucursal(nombre, distribuidor):
+    """El nombre de la sucursal reducido a lo que la distingue.
+
+    "SUC. ECHEGARAY" y "EL SURTIDOR - ECHEGARAY" son la misma tienda. Se quitan
+    las palabras del distribuidor y las de relleno, y se conservan los numeros y
+    numerales romanos, que si distinguen: "NIÑOS HÉROES I" no es "NIÑOS HÉROES
+    II".
+    """
+    fuera = set(na(distribuidor).split()) | GENERICAS_SUC | VIAS
+    return frozenset(w for w in na(nombre).split() if w and w not in fuera)
+
+
 def km(a, b, c, d):
     return (((a - c) * 110.57) ** 2
             + ((b - d) * 111.32 * math.cos(math.radians(a))) ** 2) ** 0.5
@@ -221,6 +237,28 @@ def main():
                 queda, sobra = (a, b) if riqueza(a[0]) >= riqueza(b[0]) else (b, a)
                 fuera.add(sobra[4])
                 pares.append((dist, queda, sobra, metros))
+
+    # Segunda pasada: el nombre de la sucursal. Vale cuando la direccion no
+    # alcanza, que pasa cuando una fila no trae numero o trae mal el municipio:
+    # una "SUC. TOLUCA" estaba puesta en Tecámac, a 78 km de la de Toluca.
+    for dist, grupo in por_dist.items():
+        claves = defaultdict(list)
+        for f in grupo:
+            if f[4] in fuera:
+                continue
+            k = clave_sucursal(f[0][1].value, dist)
+            if k:
+                claves[k].append(f)
+        for k, iguales in claves.items():
+            # Si tres o mas se llaman igual, el nombre no distingue: siete
+            # tiendas de DAM en Guadalajara comparten nombre y son distintas.
+            if len(iguales) != 2:
+                continue
+            a_, b_ = iguales
+            queda, sobra = (a_, b_) if riqueza(a_[0]) >= riqueza(b_[0]) else (b_, a_)
+            fuera.add(sobra[4])
+            pares.append((dist, queda, sobra,
+                          km(a_[2], a_[3], b_[2], b_[3]) * 1000))
 
     print(f"  tiendas registradas dos veces: {len(pares)}\n")
     for dist, cuenta in Counter(d for d, _, _, _ in pares).most_common(20):

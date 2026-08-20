@@ -54,6 +54,34 @@ COMERCIAL = {
     "MARIA ESTELA KURODA SAN": "KURODA",
     "BODEGA DE AZULEJOS Y PLOMERIA DALVI": "DALVI",        # 6
 
+    # Mismo negocio, comprobado porque la mayoria de las tiendas del nombre
+    # largo estan en la misma direccion que las del corto
+    "DISTRIBUIDOR AZULEJERO DE MEXICO": "DAM",             # 25 direcciones iguales
+    "NOVA CASA ZAMORA": "NOVACASA",                        # 10 de 13
+    "LA INDUSTRIAL MEXICANA": "LIMSA",                     # 8 de 10
+    "PLOMERIA GARCIA DE MONTERREY": "GRUPO PLOMERÍA GARCÍA",  # 10 de 14
+    "MADERERIA ALIANZA": "CONSTRU ALIANZA",                # 8 de 13
+    "KURODA NORTE": "KURODA",                              # 7 de 8
+    "EXPO CERAMICAS JALISCO MX": "EXPOCERAMICAS",          # 7 de 9
+    "EXPO CERAMICAS JALISCO": "EXPOCERAMICAS",
+    "LA PALOMA PERIFÉRICO": "PISOS LA PALOMA",             # 4 de 5
+    "FERRETERIA BALDOR": "BALDOR",
+    "DISTRIBUIDORA ZIGA": "ZIMAT",
+    "SANITARIOS AZULEJOS Y RECUBRIMIENTO": "SAR",
+    "SANITARIOS AZULEJOS Y RECUBRIMIENTOS": "SAR",
+    "CONTROL TECNICO DE FLUIDOS ARFI": "GRUPO ARFI",
+    "AZULEJOS Y COMPLEMENTOS": "AZYCO",
+    "EXCLUSIVA CERAMICA": "CERÁMICAS EXCLUSIVAS",
+    "CONSTRUCTORA Y PROVEEDORA FERRETODO": "FERRETERO",
+    "MATERIALES BUCIO Y YAÑEZ": "AZUMICH",
+    "FERRETERIA Y MATERIALES LIZARRAGA": "GRUPO LIZARRAGA",
+    "COMERCIALIZADORA SDMHC SA DE CV": "SODIMAC",
+    "FERNANDO REQUEJO": "REQUEJO",
+    "MARIO AARON SOTO CASTRO": "SOTO",
+    "FERRETERIA AMAYA": "AMAYA",
+    "NITROPISO AP": "TECNOPISO",
+    "NITROPISO": "TECNOPISO",
+
     # Nombre comercial conocido por el negocio, no deducible del nombre legal
     "COMERCIALIZADORA INTEGRAL DE BAÑOS": "LLANO DE LA TORRE",
     "COMERCIALIZADORA INTEGRAL DE BAÑOS Y REVESTIMIENTOS": "LLANO DE LA TORRE",
@@ -67,17 +95,23 @@ COMERCIAL = {
 # SURESTE". El mismo negocio acaba partido en decenas de empresas de una tienda
 # cada una. Todo lo que empiece asi es la misma cadena.
 POR_PREFIJO = {
-    "EL SURTIDOR": "EL SURTIDOR",
+    "EL SURTIDOR -": "EL SURTIDOR",
     "EL NIPLITO": "EL NIPLITO",
     "VAMA": "GRUPO VAMA",
     "GRUPO VAMA": "GRUPO VAMA",
 }
 
-# Empiezan igual pero son otro negocio, comprobado por region y direccion.
+# Empiezan igual pero son otro negocio.
+#
+# El Surtidor tiene nueve sucursales segun surtidor.com, en el centro del pais y
+# Jalisco. "EL SURTIDOR DE PLOMERIA Y ..." son 32 tiendas de Yucatan y Quintana
+# Roo: otra casa, que solo comparte las dos primeras palabras.
 OTRA_EMPRESA = {
     "EL SURTIDOR DEL CONSTRUCTOR",
     "EL SURTIDOR PARA VIVIENDA",
     "EL SURTIDOR QUERETANO DEL SIGLO XXI",
+    "EL SURTIDOR DE PLOMERIA Y",
+    "EL SURTIDOR DE PLOMERIA Y MATERIALES",
 }
 
 
