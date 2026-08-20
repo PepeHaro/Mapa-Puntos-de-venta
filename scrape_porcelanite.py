@@ -18,6 +18,7 @@ Cesantoni.xlsx y Vitromex.xlsx, para que generar.py lo lea sin cambios.
 
 import base64
 import json
+import math
 import re
 import sys
 import unicodedata
@@ -192,6 +193,66 @@ def direccion(x):
     return ", ".join(t for t in trozos if t)
 
 
+VIAS_DIR = {"av", "avenida", "blvd", "boulevard", "calle", "calz", "calzada",
+            "carr", "carretera", "prol", "col", "colonia", "int", "num",
+            "numero", "esq", "local", "lote", "sur", "norte", "ote", "pte",
+            "centro", "fracc", "esquina"}
+
+
+def sin_cp(direccion):
+    """Quita el codigo postal para que no se confunda con el numero del local.
+
+    Se busca por la etiqueta "CP" ademas de por largo: los codigos de la Ciudad
+    de Mexico empiezan con cero y Excel se lo come, asi que 03300 llega escrito
+    como 3300 y pasaria por numero exterior.
+    """
+    t = re.sub(r"[^\w\s]", " ", sin_acentos(str(direccion or "")).lower())
+    t = re.sub(r"\bc\s*p\s*:?\s*\d{4,5}\b", " ", t)
+    return " ".join(re.sub(r"\b\d{5}\b", " ", t).split())
+
+
+def numero_exterior(direccion):
+    nums = [int(n) for n in re.findall(r"\b(\d{1,5})\b", sin_cp(direccion))]
+    return max(nums) if nums else None
+
+
+def palabras_calle(direccion):
+    return {w for w in re.sub(r"\d+", " ", sin_cp(direccion)).split()
+            if len(w) > 3 and w not in VIAS_DIR}
+
+
+def sin_repetidos(filas):
+    """Quita la misma tienda repetida dentro del propio archivo.
+
+    Porcelanite registra algunas dos veces con la direccion escrita distinto:
+    "Paseo Cuauhnahuac Km 3.5" y "Boulevard Cuauhnahuac Km 3.5", o "Magnolias
+    142" y "Av. Magnolias 142". Se comparan por distribuidor, numero exterior y
+    cercania, no por texto.
+    """
+    por_dist = {}
+    for f in filas:
+        por_dist.setdefault(f[0], []).append(f)
+    fuera, repetidas = set(), 0
+    for grupo in por_dist.values():
+        for i, a in enumerate(grupo):
+            if id(a) in fuera:
+                continue
+            for b in grupo[i + 1:]:
+                if id(b) in fuera:
+                    continue
+                d = math.hypot((a[6] - b[6]) * 110.57,
+                               (a[7] - b[7]) * 111.32 * math.cos(math.radians(a[6])))
+                if d > 0.3:
+                    continue
+                na_, nb = numero_exterior(a[5]), numero_exterior(b[5])
+                if na_ is not None and na_ == nb and (palabras_calle(a[5]) & palabras_calle(b[5])):
+                    fuera.add(id(b))
+                    repetidas += 1
+    if repetidas:
+        print(f"  {repetidas} duplicados descartados")
+    return [f for f in filas if id(f) not in fuera]
+
+
 def avisar_si_hay_ediciones():
     if not DESTINO.exists():
         return
@@ -251,17 +312,7 @@ def main():
     if fuera_mx:
         print(f"  {fuera_mx} con coordenada fuera de Mexico (descartados)")
 
-    vistas, unicas = set(), []
-    for f in filas:
-        k = (sin_acentos(f[0]).upper(), sin_acentos(f[2]).upper(),
-             sin_acentos(f[5]).upper(), round(f[6], 5), round(f[7], 5))
-        if k in vistas:
-            continue
-        vistas.add(k)
-        unicas.append(f)
-    if len(unicas) < len(filas):
-        print(f"  {len(filas) - len(unicas)} duplicados descartados")
-    filas = unicas
+    filas = sin_repetidos(filas)
 
     filas.sort(key=lambda f: (sin_acentos(f[0]).upper(), sin_acentos(f[2]).upper()))
 

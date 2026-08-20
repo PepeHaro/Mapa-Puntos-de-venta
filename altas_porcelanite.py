@@ -9,9 +9,10 @@ Regla, la misma que se uso con Vitromex: si el distribuidor ya existe en la BD
 como grupo, todas sus sucursales ya estan y no se toca nada. Solo entran
 empresas que la BD no tiene.
 
-Antes de dar de alta, cada sucursal se compara contra las coordenadas de la BD:
-si cae a menos de 100 m de una tienda existente, se descarta, porque casi
-siempre significa que es la misma tienda registrada con otro nombre.
+Antes de dar de alta, cada sucursal se compara contra la BD. La cercania sola
+no sirve como criterio: la 25 Poniente de Puebla es un corredor de azulejeras
+pegadas, y tres negocios distintos caben en 40 metros. Lo que decide es el
+numero exterior de la calle, igual que en el resto del proyecto.
 """
 
 import math
@@ -37,7 +38,49 @@ DUDOSOS = {"GRUPO JCC", "VIZUET", "GUTIERREZ", "PALENCIA", "BERNARDO MENESES"}
 RUIDO = {"grupo", "comercializadora", "distribuidora", "distribuidor",
          "corporativo", "sa", "de", "cv", "s", "rl", "sapi", "gpo"}
 
-METROS = 100  # mas cerca que esto de una tienda existente = es la misma
+CERCA_M = 150  # solo se comparan direcciones dentro de este radio
+
+# Palabras que no distinguen una direccion de otra.
+VIAS = {"av", "avenida", "blvd", "boulevard", "calle", "calz", "calzada", "carr",
+        "carretera", "prol", "prolongacion", "col", "colonia", "int", "num",
+        "numero", "esq", "local", "lote", "sur", "norte", "ote", "pte",
+        "centro", "fracc", "esquina"}
+
+
+def sin_cp(direccion):
+    """Quita el codigo postal, que si no se cuela como numero de la calle.
+
+    Hay que buscarlo por la etiqueta "CP" y no solo por largo: los codigos de
+    la Ciudad de Mexico empiezan con cero y el Excel se lo come, asi que
+    03300 llega escrito como 3300 y pasaria por numero exterior.
+    """
+    t = na(direccion)
+    t = re.sub(r"\bc\s*p\s*:?\s*\d{4,5}\b", " ", t)
+    t = re.sub(r"\b\d{5}\b", " ", t)
+    return t
+
+
+def numero_exterior(direccion):
+    """El numero mas grande de la direccion, que casi siempre es el del local.
+
+    En Puebla las calles se llaman "25 Poniente", asi que la direccion trae dos
+    numeros y el del local es el mayor: en "25 Poniente 3504" el local es 3504.
+    """
+    nums = [int(n) for n in re.findall(r"\b(\d{1,5})\b", sin_cp(direccion))]
+    return max(nums) if nums else None
+
+
+def calle(direccion):
+    return {w for w in re.sub(r"\d+", " ", sin_cp(direccion)).split()
+            if len(w) > 3 and w not in VIAS}
+
+
+def misma_tienda(dir_a, dir_b):
+    """Misma direccion: mismo numero exterior y alguna palabra de calle en comun."""
+    na_, nb = numero_exterior(dir_a), numero_exterior(dir_b)
+    if na_ is None or nb is None or na_ != nb:
+        return False
+    return bool(calle(dir_a) & calle(dir_b))
 
 
 def na(s):
@@ -71,7 +114,7 @@ def main():
             lat, lon = float(fila[7].value), float(fila[8].value)
         except (TypeError, ValueError):
             continue
-        puntos[(round(lat, 2), round(lon, 2))].append((lat, lon))
+        puntos[(round(lat, 2), round(lon, 2))].append((lat, lon, str(fila[6].value or "")))
 
     wb = openpyxl.load_workbook(PORCELANITE, read_only=True, data_only=True)
     porcelanite = [list(f) for f in wb[wb.sheetnames[0]].iter_rows(min_row=2, values_only=True)]
@@ -80,16 +123,16 @@ def main():
     candidatas = [f for f in porcelanite
                   if clave(f[0]) not in existentes and f[0] not in DUDOSOS]
 
-    altas, encimadas = [], 0
+    altas, repetidas = [], 0
     for f in candidatas:
         lat, lon = f[6], f[7]
-        pegada = any(
-            km(lat, lon, x, y) * 1000 < METROS
-            for dla in (-0.01, 0, 0.01) for dlo in (-0.01, 0, 0.01)
-            for x, y in puntos.get((round(lat + dla, 2), round(lon + dlo, 2)), [])
-        )
-        if pegada:
-            encimadas += 1
+        vecinas = [
+            d for dla in (-0.01, 0, 0.01) for dlo in (-0.01, 0, 0.01)
+            for x, y, d in puntos.get((round(lat + dla, 2), round(lon + dlo, 2)), [])
+            if km(lat, lon, x, y) * 1000 < CERCA_M
+        ]
+        if any(misma_tienda(f[5], d) for d in vecinas):
+            repetidas += 1
         else:
             altas.append(f)
 
@@ -97,7 +140,7 @@ def main():
         {f[0] for f in porcelanite if f[0] in DUDOSOS})
     print(f"  distribuidores que la BD ya tiene:  {ya:>3}  (no se tocan)")
     print(f"  dudosos, se dejan fuera:            {len(DUDOSOS):>3}")
-    print(f"  sucursales encimadas a una de la BD:{encimadas:>4}  (se descartan)")
+    print(f"  ya estaban en la BD con otro nombre: {repetidas:>3}  (misma direccion, se descartan)")
     print(f"  ALTAS: {len(altas)} sucursales de {len({f[0] for f in altas})} distribuidores")
 
     if not aplicar:
