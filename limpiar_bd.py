@@ -125,18 +125,35 @@ LEJOS_KM = 3.0
 
 
 def misma_tienda(a, b, metros):
-    """Decide si dos filas son el mismo local. Cada una es (direccion, ciudad, estado)."""
+    """Decide si dos filas son el mismo local. Cada una es (direccion, ciudad, estado).
+
+    Cuando la direccion coincide de verdad, la distancia deja de importar: hay
+    filas con la calle y el numero escritos igual a cientos de kilometros una de
+    otra porque a una le pusieron mal el municipio. La misma tienda de
+    SANTANDREU aparecia en Campeche y en Villahermosa.
+
+    La distancia sigue mandando cuando lo unico compartido es una calle de
+    nombre comun, para no juntar dos tiendas distintas de una misma cadena que
+    esten en un "Av. Juárez 100" de dos ciudades.
+    """
     comun = calle(*a) & calle(*b)
     if not comun:
         return False
+    misma_ciudad = na(a[1]) == na(b[1]) and na(a[1]) != ""
     na_, nb = numero_exterior(*a), numero_exterior(*b)
     if na_ is not None and nb is not None:
-        return na_ == nb and metros < LEJOS_KM * 1000
-    # Sin numero exterior la calle es lo unico que queda, asi que se pide mas
-    # coincidencia de palabras cuanto mas lejos esten los dos puntos.
-    if len(comun) >= 2:
+        if na_ != nb:
+            return False
+        if len(comun) >= 2 or misma_ciudad:
+            return True
         return metros < LEJOS_KM * 1000
-    return metros < 800
+    if na_ is None and nb is None:
+        if len(comun) >= 3:
+            return True
+        if len(comun) >= 2:
+            return misma_ciudad or metros < LEJOS_KM * 1000
+        return metros < 800
+    return len(comun) >= 2 and metros < LEJOS_KM * 1000
 
 
 def km(a, b, c, d):
@@ -194,8 +211,7 @@ def main():
                 if b[4] in fuera:
                     continue
                 metros = km(a[2], a[3], b[2], b[3]) * 1000
-                if metros > LEJOS_KM * 1000:
-                    continue
+
                 def señas(f):
                     return (str(f[0][6].value or ""), str(f[0][5].value or ""),
                             str(f[0][4].value or ""))
