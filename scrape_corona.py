@@ -60,6 +60,13 @@ MENORES = {"de", "del", "la", "las", "los", "y", "el", "en", "a", "con"}
 GENERICAS = {"suc", "sucursal", "matriz", "bodega", "cedis", "tienda"}
 CERCA_CIUDAD_KM = 15
 
+# Fuera de esta caja no hay territorio mexicano. Corona manda 35 tiendas con la
+# coordenada podrida: "Gersa Hermosillo" cae en Carolina del Sur, "Kuroda Son
+# Obregón" en Zaragoza, y "Ceramat Tapachula" trae la latitud repetida como
+# longitud. Todas dicen ciudad mexicana en el nombre, asi que no son sucursales
+# en el extranjero: es el dato que viene mal.
+CAJA_MX = (14.3, 32.8, -118.6, -86.5)
+
 
 def sin_acentos(s):
     return "".join(c for c in unicodedata.normalize("NFD", str(s or ""))
@@ -239,11 +246,15 @@ def main():
             frec[w] += 1
     raros = {w for w, c in frec.items() if c == 1}
 
-    filas, reconocidos, sin_ciudad = [], 0, 0
+    filas, reconocidos, sin_ciudad, fuera_mx = [], 0, 0, []
     for x in tiendas:
         try:
             lat, lon = float(x["latitude"]), float(x["longitude"])
         except (TypeError, ValueError):
+            continue
+        smin, smax, wmin, wmax = CAJA_MX
+        if not (smin <= lat <= smax and wmin <= lon <= wmax):
+            fuera_mx.append((str(x.get("displayName") or ""), lat, lon))
             continue
         cp = re.sub(r"\D", "", str(x.get("postalCode") or ""))
         calle = titulo(x.get("line1"))
@@ -276,6 +287,10 @@ def main():
     print(f"  distribuidor reconocido contra la BD: {reconocidos} de {len(filas)}")
     if sin_ciudad:
         print(f"  sin punto conocido a {CERCA_CIUDAD_KM} km: {sin_ciudad}")
+    if fuera_mx:
+        print(f"  {len(fuera_mx)} con coordenada fuera de Mexico (descartados):")
+        for nombre, la, lo in fuera_mx[:6]:
+            print(f"      {nombre[:38]:40} {la},{lo}")
 
     vistas, unicas = set(), []
     for f in filas:
