@@ -160,6 +160,16 @@ for _ini, _fin, _edo in [
     for _n in range(_ini, _fin + 1):
         CP_ESTADO[_n] = _edo
 
+# Coordenadas que Porcelanite manda mal y se corrigen a mano. La llave es el
+# titulo de la tienda tal como viene en la pagina. Si alguna se arregla en el
+# sitio, se puede quitar de aqui sin que pase nada: el valor se sobrescribe
+# igual.
+COORDENADAS_A_MANO = {
+    # decia 19.3182,-99.2222, junto a la Ciudad de Mexico, a 280 km de su
+    # direccion real en Calle Granada, Tihuatlan, Veracruz
+    "CIEN TIHUATLAN": (20.552673, -97.472198),
+}
+
 # Fuera de esta caja no hay territorio mexicano; un registro cae en Madrid.
 CAJA_MX = (14.3, 32.8, -118.6, -86.5)
 
@@ -300,6 +310,10 @@ def main():
         if not (smin <= lat <= smax and wmin <= lon <= wmax):
             fuera_mx += 1
             continue
+
+        titulo_tienda = str(x.get("title") or "").strip().upper()
+        if titulo_tienda in COORDENADAS_A_MANO:
+            lat, lon = COORDENADAS_A_MANO[titulo_tienda]
 
         cats = x.get("categories") or []
         crudo = cats[0]["name"].strip() if cats else ""
