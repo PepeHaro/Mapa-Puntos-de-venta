@@ -41,6 +41,7 @@ FUENTES = [
     ("Marcas/Vitromex.xlsx", None, 1),
     ("Marcas/Porcelanite.xlsx", None, 1),
     ("Marcas/Urrea.xlsx", None, 1),
+    ("Marcas/Corona.xlsx", None, 1),
 ]
 
 # Palabras de figura societaria que van al principio y no distinguen al negocio.

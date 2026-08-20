@@ -40,6 +40,7 @@ MARCAS = [
     ("Marcas/Vitromex.xlsx", 2, 3, 4, 5, 6),
     ("Marcas/Porcelanite.xlsx", 2, 3, 4, 5, 6),
     ("Marcas/Urrea.xlsx", 2, 3, 4, 5, 6),
+    ("Marcas/Corona.xlsx", 2, 3, 4, 5, 6),
 ]
 # Interceramic queda fuera a proposito: son sus propias tiendas, no distribuidores.
 

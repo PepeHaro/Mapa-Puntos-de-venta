@@ -41,6 +41,7 @@ FUENTES = [
     ("Marcas/Vitromex.xlsx", None),
     ("Marcas/Porcelanite.xlsx", None),
     ("Marcas/Urrea.xlsx", None),
+    ("Marcas/Corona.xlsx", None),
 ]
 
 # razon social  ->  nombre comercial

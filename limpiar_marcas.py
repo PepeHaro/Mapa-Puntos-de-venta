@@ -38,7 +38,7 @@ SERVIDOR = Path(
     "/Volumes/MK/MK Server/Finanzas/Strategy 2026/Distribuidores/Data/Sucursales"
 )
 BD = SERVIDOR / "Distribuidores.xlsx"
-MARCAS = ["Daltile", "Interceramic", "Cesantoni", "Vitromex", "Porcelanite", "Urrea"]
+MARCAS = ["Daltile", "Interceramic", "Cesantoni", "Vitromex", "Porcelanite", "Urrea", "Corona"]
 APARTE = {"Interceramic"}   # sus tiendas propias, no distribuidores
 
 # columnas en los archivos de marca: distribuidor, nombre, estado, ciudad,
