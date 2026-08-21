@@ -31,3 +31,5 @@ scrape_lamosa.py
 scrape_moen.py
 .moen-generado
 .moen-geocache.json
+scrape_firenze.py
+.firenze-generado
