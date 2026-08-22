@@ -33,3 +33,6 @@ scrape_moen.py
 .moen-geocache.json
 scrape_firenze.py
 .firenze-generado
+.americanstandard-crudo.json
+.americanstandard-generado
+scrape_americanstandard.py
