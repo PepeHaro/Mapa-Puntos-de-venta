@@ -36,3 +36,4 @@ scrape_firenze.py
 .americanstandard-crudo.json
 .americanstandard-generado
 scrape_americanstandard.py
+normalizar_estados.py
