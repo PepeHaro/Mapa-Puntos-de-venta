@@ -37,3 +37,9 @@ scrape_firenze.py
 .americanstandard-generado
 scrape_americanstandard.py
 normalizar_estados.py
+.denue-token
+.denue-crudo.json
+denue.py
+denue_resumen.py
+.usa-geocache.json
+limpiar_usa.py
