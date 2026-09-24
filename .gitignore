@@ -43,3 +43,6 @@ denue.py
 denue_resumen.py
 .usa-geocache.json
 limpiar_usa.py
+.usa-marcas-crudo.json
+scrape_usa_marcas.py
+.tileshop-slugs.txt
