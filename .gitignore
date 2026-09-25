@@ -1,50 +1,13 @@
-.DS_Store
-~$*
-generar.py
-publicar.sh
-scrape_vitromex.py
-geocache.json
-__pycache__/
-.vitromex-generado
-reporte_faltantes.py
-normalizar.py
-arreglar_83.py
-consenso.py
-ciudad.py
-NOTAS.md
-altas_faltantes.py
-altas_porcelanite.py
-altas_urrea.py
-limpiar_bd.py
-limpiar_marcas.py
-nombres_comerciales.py
-normalizar_nombres.py
-oficiales.py
-scrape_corona.py
-scrape_porcelanite.py
-scrape_urrea.py
-.porcelanite-generado
-.urrea-generado
-.corona-generado
-scrape_lamosa.py
-.lamosa-generado
-scrape_moen.py
-.moen-generado
-.moen-geocache.json
-scrape_firenze.py
-.firenze-generado
-.americanstandard-crudo.json
-.americanstandard-generado
-scrape_americanstandard.py
-normalizar_estados.py
-.denue-token
-.denue-crudo.json
-denue.py
-denue_resumen.py
-.usa-geocache.json
-limpiar_usa.py
-.usa-marcas-crudo.json
-scrape_usa_marcas.py
-.tileshop-slugs.txt
-.daltile-crudo.json
-red_daltile.py
+# Este repo es publico: solo se sube el mapa.
+#
+# La lista va al reves a proposito. Antes se nombraba archivo por archivo lo
+# que no debia subirse, y cada script nuevo que se escribia quedaba fuera de
+# la lista y por lo tanto adentro del repo: asi se colaron once scripts que
+# siguen en el historial. Ahora se ignora todo y se permite nada mas lo que
+# de verdad se publica, que es el mapa. Lo demas -los Excel, los scripts, los
+# caches con telefonos y correos- se queda en la maquina y en el servidor.
+*
+
+!.gitignore
+!index.html
+!README.md
