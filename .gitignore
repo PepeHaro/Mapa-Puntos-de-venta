@@ -46,3 +46,5 @@ limpiar_usa.py
 .usa-marcas-crudo.json
 scrape_usa_marcas.py
 .tileshop-slugs.txt
+.daltile-crudo.json
+red_daltile.py
